@@ -60,6 +60,8 @@ let end_date = moment(end).toDate();
 let by_till = 0;
 let by_user = 0;
 let by_status = 1;
+const fs = require('fs');
+const os = require('os');
 
 $(function () {
 
@@ -1888,18 +1890,19 @@ if (auth == undefined) {
         $('#productList').DataTable().destroy();
 
         const filename = 'productList.pdf';
+        const downloadPath = path.join(os.homedir(), 'Downloads', filename);
 
         html2canvas($('#all_products').get(0)).then(canvas => {
             let height = canvas.height * (25.4 / 96);
             let width = canvas.width * (25.4 / 96);
             let pdf = new jsPDF('p', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, width, height);
-
-            $("#loading").hide();
-            pdf.save(filename);
+        // Convert PDF to a buffer and write to file
+        const pdfBuffer = pdf.output('arraybuffer');
+        fs.writeFileSync(downloadPath, Buffer.from(pdfBuffer));
             Swal.fire({
                 title: 'Data Exported',
-                text: " Your data has been exported to " + filename,
+                text: " Your data has been exported to " + downloadPath,
                 icon: 'success',
                 showCancelButton: false,
                 confirmButtonColor: '#d33',
