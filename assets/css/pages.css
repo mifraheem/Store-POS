@@ -12,6 +12,24 @@
   height: calc(100vh - 425px);
   overflow: auto;
 }
+.expired .widget-panel {
+    border: 2px solid red;
+    background-color: #ffe5e5;
+    color: red !important;
+}
+
+.expired .text-muted,
+.expired .name,
+.expired .sku,
+.expired .count,
+.expired b {
+    color: red !important;
+}
+
+.expiring-soon .widget-panel {
+    border: 2px solid red;
+}
+
 
 #parent { 
   display: block; 

@@ -94,9 +94,10 @@ app.post( "/product", upload.single('imagename'), function ( req, res ) {
         quantity: req.body.quantity == "" ? 0 : req.body.quantity,
         name: req.body.name,
         stock: req.body.stock == "on" ? 0 : 1,    
-        img: image        
+        img: image,
+        expireDate: req.body.expireDate || null    
     }
-
+ 
     if(req.body.id == "") { 
         Product._id = Math.floor(Date.now() / 1000);
         inventoryDB.insert( Product, function ( err, product ) {

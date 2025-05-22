@@ -215,24 +215,44 @@ if (auth == undefined) {
                 $('#categories').html(`<button type="button" id="all" class="btn btn-categories btn-white waves-effect waves-light">All</button> `);
 
                 data.forEach(item => {
+                    item.price = parseFloat(item.price).toFixed(2);
 
-                    if (!categories.includes(item.category)) {
-                        categories.push(item.category);
+                    // Date logic
+                    const today = new Date();
+                    const expireDate = item.expireDate ? new Date(item.expireDate) : null;
+
+                    let boxClass = "";
+                    let expText = item.expireDate || 'N/A';
+
+                    if (expireDate) {
+                        const diffTime = expireDate.getTime() - today.getTime();
+                        const diffDays = diffTime / (1000 * 3600 * 24);
+
+                        if (diffDays < 0) {
+                            boxClass = "expired"; // already expired
+                        } else if (diffDays <= 7) {
+                            boxClass = "expiring-soon"; // within a week
+                        }
                     }
 
-                    let item_info = `<div class="col-lg-2 box ${item.category}"
-                                onclick="$(this).addToCart(${item._id}, ${item.quantity}, ${item.stock})">
-                            <div class="widget-panel widget-style-2 ">                    
-                            <div id="image"><img src="${item.img == "" ? "./assets/images/default.jpg" : img_path + item.img}" id="product_img" alt=""></div>                    
-                                        <div class="text-muted m-t-5 text-center">
-                                        <div class="name" id="product_name">${item.name}</div> 
-                                        <span class="sku">${item.sku}</span>
-                                        <span class="stock">STOCK </span><span class="count">${item.stock == 1 ? item.quantity : 'N/A'}</span></div>
-                                        <sp class="text-success text-center"><b data-plugin="counterup">${settings.symbol + item.price}</b> </sp>
+                    let item_info = `
+                        <div class="col-lg-2 box ${item.category} ${boxClass}"
+                            onclick="$(this).addToCart(${item._id}, ${item.quantity}, ${item.stock})">
+                            <div class="widget-panel widget-style-2">                    
+                                <div id="image"><img src="${item.img == "" ? "./assets/images/default.jpg" : img_path + item.img}" id="product_img" alt=""></div>                    
+                                <div class="text-muted m-t-5 text-center">
+                                    <div class="name" id="product_name">${item.name}</div> 
+                                    <span class="sku">${item.sku}</span>
+                                    <span class="stock">STOCK </span><span class="count">${item.stock == 1 ? item.quantity : 'N/A'}</span>
+                                </div>
+                                <span class="text-success text-center"><b data-plugin="counterup">${settings.symbol + item.price}</b></span> <br>
+                                <span class="stock"><b>Exp: ${expText}</b></span>
                             </div>
                         </div>`;
+
                     $('#parent').append(item_info);
                 });
+
 
                 categories.forEach(category => {
 
@@ -1897,9 +1917,9 @@ if (auth == undefined) {
             let width = canvas.width * (25.4 / 96);
             let pdf = new jsPDF('p', 'mm', 'a4');
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, width, height);
-        // Convert PDF to a buffer and write to file
-        const pdfBuffer = pdf.output('arraybuffer');
-        fs.writeFileSync(downloadPath, Buffer.from(pdfBuffer));
+            // Convert PDF to a buffer and write to file
+            const pdfBuffer = pdf.output('arraybuffer');
+            fs.writeFileSync(downloadPath, Buffer.from(pdfBuffer));
             Swal.fire({
                 title: 'Data Exported',
                 text: " Your data has been exported to " + downloadPath,
@@ -1909,7 +1929,7 @@ if (auth == undefined) {
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Continue',
             })
-            
+
         });
 
 
